@@ -81,7 +81,7 @@ module MongoDBQueue
       end
     end
 
-    def send_queues(data, queues, unique_field)
+    def send_queues(queues, data, unique_field)
       queues = [queues].flatten
       queue_list = []
       
