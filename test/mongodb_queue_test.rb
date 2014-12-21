@@ -14,6 +14,8 @@ class MongoDBQueueTest < Test::Unit::TestCase
         username: 'test-user',
         password: 'test-pass'
     }
+    
+    @person = {name: 'John', age: 32, id: '123456789'}
   end
 
   # Called after every test method runs. Can be used to tear
@@ -47,5 +49,13 @@ class MongoDBQueueTest < Test::Unit::TestCase
     assert_equal('No collection set', exception.message)
   end
   
-  
+  def test_enqueue_dequeue
+    queue = MongoDBQueue::MongoDBQueue.new(@config)
+    queue.enqueue(:test_queue, person)
+    dequeued = queue.dequeue(:test_queue)
+
+    assert_equal(@person[:name], dequeued[:name])
+    assert_equal(@person[:age], dequeued[:age])
+    assert_equal(@person[:id], dequeued[:id])
+  end
 end

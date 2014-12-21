@@ -30,7 +30,7 @@ require 'mongodb_queue'
 
 queue = MongoDBQueue::MongoDBQueue.new({address: 'localhost', port: 27017, database: 'test-db', collection: 'test-queue'})
 
-person = {name: 'John', age: 32, ssn: '123456789'}
+person = {name: 'John', age: 32, id: '123456789'}
 
 # Basic Usage
 queue.enqueue([:faculty, :staff], person)
