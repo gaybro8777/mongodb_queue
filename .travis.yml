@@ -10,3 +10,8 @@ services:
 before_script:
   - sleep 15
   - mongo queue_test --eval 'db.addUser("test-user", "test-pass");'
+  
+addons:
+  code_climate:
+    repo_token: 34b485bbd9bfa6ee8b0ee9d9d9de2d310c560a4603813957e438cc1c5a695308
+    

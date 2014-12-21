@@ -1,6 +1,8 @@
 require 'test/unit'
 require 'mongodb_queue'
 
+require_relative 'test_helper'
+
 class MongoDBQueueTest < Test::Unit::TestCase
 
   # Called before every test method runs. Can be used

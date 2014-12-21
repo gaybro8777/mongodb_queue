@@ -63,7 +63,7 @@ module MongoDBQueue
     def connect_mongo
       if @client.nil? || !@client.connected?
         @client = Mongo::MongoClient.new(@settings[:address], @settings[:port])
-        db = @client[@settings[:name]]
+        db = @client[@settings[:database]]
         db.authenticate(@settings[:username], @settings[:password]) if @settings[:username] || @settings[:password]
         @queue = db[@settings[:collection]]
         @queue.create_index({'queue.name' => Mongo::ASCENDING, 'queue.status' => Mongo::ASCENDING})
