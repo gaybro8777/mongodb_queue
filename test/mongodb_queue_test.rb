@@ -53,7 +53,7 @@ class MongoDBQueueTest < Test::Unit::TestCase
   
   def test_enqueue_dequeue
     queue = MongoDBQueue::MongoDBQueue.new(@config)
-    queue.enqueue(:test_queue, person)
+    queue.enqueue(:test_queue, @person)
     dequeued = queue.dequeue(:test_queue)
 
     assert_equal(@person[:name], dequeued[:name])
