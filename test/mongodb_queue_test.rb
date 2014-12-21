@@ -1,7 +1,7 @@
+require_relative 'test_helper'
+
 require 'test/unit'
 require 'mongodb_queue'
-
-require_relative 'test_helper'
 
 class MongoDBQueueTest < Test::Unit::TestCase
 
