@@ -3,6 +3,8 @@ mongodb_queue
 
 [![Build Status](https://travis-ci.org/dashingrocket/mongodb_queue.svg?branch=master)](https://travis-ci.org/dashingrocket/mongodb_queue)
 
+** This project is unfinished **
+
 MongoDB based work queue written in Ruby.  Support multiple queues.
 
 ## Installation
@@ -25,9 +27,21 @@ $ gem install mongodb_queue
 
 TODO: Write usage instructions here
 
+```ruby
+require 'mongodb_queue'
+
+queue = MongodbQueue.new({address: 'localhost', port: 27017, database: 'test-db', collection: 'test-queue'})
+
+person = {name: 'John', age: 32, ssn: '123456789'}
+
+# Basic Usage
+queue.enqueue([:faculty, :staff], person)
+queue.dequeue(:faculty)
+```
+
 ## Contributing
 
-1. Fork it ( https://github.com/[my-github-username]/mongodb_queue/fork )
+1. Fork it ( https://github.com/dashingrocket/mongodb_queue/fork )
 2. Create your feature branch (`git checkout -b my-new-feature`)
 3. Commit your changes (`git commit -am 'Add some feature'`)
 4. Push to the branch (`git push origin my-new-feature`)
