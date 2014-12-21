@@ -1,4 +1,9 @@
 language: ruby
+
+notifications:
+  email:
+    - jbowes@dashingrocket.com
+
 rvm:
   - 2.1.5
   - 2.0.0
@@ -9,7 +14,7 @@ services:
 
 before_script:
   - sleep 15
-  - mongo queue_test --eval 'db.addUser("test-user", "test-pass");'
+  - mongo test-db --eval 'db.addUser("test-user", "test-pass");'
   
 addons:
   code_climate:
