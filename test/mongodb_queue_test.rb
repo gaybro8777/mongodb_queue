@@ -56,8 +56,8 @@ class MongoDBQueueTest < Test::Unit::TestCase
     queue.enqueue(:test_queue, @person)
     dequeued = queue.dequeue(:test_queue)
 
-    assert_equal(@person[:name], dequeued[:name])
-    assert_equal(@person[:age], dequeued[:age])
-    assert_equal(@person[:id], dequeued[:id])
+    assert_equal(@person[:name], dequeued['name'])
+    assert_equal(@person[:age], dequeued['age'])
+    assert_equal(@person[:id], dequeued['id'])
   end
 end
