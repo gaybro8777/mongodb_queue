@@ -1,3 +1,4 @@
+require 'logger'
 require 'mongo'
 
 module MongoDBQueue
@@ -53,18 +54,18 @@ module MongoDBQueue
     
     private
     def check_settings(settings)
-      raise 'No database address set' if settings['address'].nil?
-      raise 'No database port set' if settings['port'].nil?
-      raise 'No database name set' if settings['database'].nil?
-      raise 'No collection set' if settings['collection'].nil?
+      raise 'No database address set' if settings[:address].nil?
+      raise 'No database port set' if settings[:port].nil?
+      raise 'No database set' if settings[:database].nil?
+      raise 'No collection set' if settings[:collection].nil?
     end
 
     def connect_mongo
       if @client.nil? || !@client.connected?
-        @client = Mongo::MongoClient.new(@settings['address'], @settings['port'])
-        db = @client[@settings['name']]
-        db.authenticate(@settings['username'], @settings['password']) if @settings['username'] || @settings['password']
-        @queue = db[@settings['collection']]
+        @client = Mongo::MongoClient.new(@settings[:address], @settings[:port])
+        db = @client[@settings[:name]]
+        db.authenticate(@settings[:username], @settings[:password]) if @settings[:username] || @settings[:password]
+        @queue = db[@settings[:collection]]
         @queue.create_index({'queue.name' => Mongo::ASCENDING, 'queue.status' => Mongo::ASCENDING})
       end
     end

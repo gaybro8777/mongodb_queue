@@ -9,4 +9,4 @@ services:
 
 before_script:
   - sleep 15
-  - mongo queue_test --eval 'db.addUser("travis", "test");'
+  - mongo queue_test --eval 'db.addUser("test-user", "test-pass");'

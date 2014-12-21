@@ -25,8 +25,6 @@ $ gem install mongodb_queue
 
 ## Usage
 
-TODO: Write usage instructions here
-
 ```ruby
 require 'mongodb_queue'
 
