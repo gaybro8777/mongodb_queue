@@ -5,7 +5,7 @@ require 'mongodb_queue/version'
 
 Gem::Specification.new do |spec|
   spec.name          = 'mongodb_queue'
-  spec.version       = MongodbQueue::VERSION
+  spec.version       = MongoDBQueue::VERSION
   spec.authors       = ['Jesse Bowes']
   spec.email         = ['jbowes@dashingrocket.com']
   spec.summary       = 'MongoDB Messaging Queue'

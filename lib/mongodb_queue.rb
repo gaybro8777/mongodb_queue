@@ -1,7 +1,7 @@
 require 'mongo'
 
-module MongodbQueue
-  class MongodbQueue
+module MongoDBQueue
+  class MongoDBQueue
     
     # settings
     #  :address

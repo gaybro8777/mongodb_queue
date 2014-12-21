@@ -1,7 +1,12 @@
 mongodb_queue
 =============
 
-[![Build Status](https://travis-ci.org/dashingrocket/mongodb_queue.svg?branch=master)](https://travis-ci.org/dashingrocket/mongodb_queue)
+------------- | -------------
+Build Status  | [![Build Status](https://travis-ci.org/dashingrocket/mongodb_queue.svg?branch=master)](https://travis-ci.org/dashingrocket/mongodb_queue)
+Code Climate  | [![Code Climate](https://codeclimate.com/github/dashingrocket/mongodb_queue/badges/gpa.svg)](https://codeclimate.com/github/dashingrocket/mongodb_queue)
+Test Coverage | [![Test Coverage](https://codeclimate.com/github/dashingrocket/mongodb_queue/badges/coverage.svg)](https://codeclimate.com/github/dashingrocket/mongodb_queue)
+Gem Version   | TBD
+
 
 ** This project is unfinished **
 
@@ -30,7 +35,7 @@ TODO: Write usage instructions here
 ```ruby
 require 'mongodb_queue'
 
-queue = MongodbQueue.new({address: 'localhost', port: 27017, database: 'test-db', collection: 'test-queue'})
+queue = MongoDBQueue::MongoDBQueue.new({address: 'localhost', port: 27017, database: 'test-db', collection: 'test-queue'})
 
 person = {name: 'John', age: 32, ssn: '123456789'}
 
