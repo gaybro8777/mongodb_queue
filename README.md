@@ -3,7 +3,7 @@ mongodb_queue
 
 [![Build Status](https://travis-ci.org/dashingrocket/mongodb_queue.svg?branch=master)](https://travis-ci.org/dashingrocket/mongodb_queue) [![Code Climate](https://codeclimate.com/github/dashingrocket/mongodb_queue/badges/gpa.svg)](https://codeclimate.com/github/dashingrocket/mongodb_queue) [![Test Coverage](https://codeclimate.com/github/dashingrocket/mongodb_queue/badges/coverage.svg)](https://codeclimate.com/github/dashingrocket/mongodb_queue)
 
-**This project is unfinished**
+**This project is under development.**
 
 MongoDB based work queue written in Ruby.  Support multiple queues.
 
