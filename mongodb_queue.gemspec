@@ -20,7 +20,7 @@ Gem::Specification.new do |spec|
 
   spec.add_development_dependency 'bundler', '~> 1.7'
   spec.add_development_dependency 'rake', '~> 10.0'
-  spec.add_deveopment_dependency 'codeclimate-test-reporter'
+  spec.add_development_dependency 'codeclimate-test-reporter'
 
   spec.add_runtime_dependency 'bson_ext', '~> 1.11'
   spec.add_runtime_dependency 'mongo', '~> 1.11'
