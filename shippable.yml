@@ -7,14 +7,15 @@ rvm:
   
 services:
   - mongodb
-
-before_script:
-  - mongo test-db --eval 'db.addUser("test-user", "test-pass");'
   
 env:
   - CI_REPORTS=shippable/testresults COVERAGE_REPORTS=shippable/codecoverage
   
 notifications:
   email:
-    - jbowes@dashingrocket.com
-    
+    recipients:
+      - jbowes@dashingrocket.com
+                 - exampletwo@org.com
+      on_success: change
+      on_failure: always
+      
