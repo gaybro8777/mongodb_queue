@@ -15,7 +15,6 @@ notifications:
   email:
     recipients:
       - jbowes@dashingrocket.com
-                 - exampletwo@org.com
       on_success: change
       on_failure: always
       
