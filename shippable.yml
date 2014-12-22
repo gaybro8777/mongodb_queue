@@ -8,6 +8,9 @@ rvm:
 services:
   - mongodb
   
+before_script:
+  - mongo test-db --eval 'db.addUser("test-user", "test-pass");'
+  
 env:
   - CI_REPORTS=shippable/testresults COVERAGE_REPORTS=shippable/codecoverage
   
