@@ -1,20 +1,24 @@
 language: ruby
 
-notifications:
-  email:
-    - jbowes@dashingrocket.com
-
 rvm:
   - 2.1.5
   - 2.0.0
   - 1.9.3
+
+notifications:
+  email:
+    - jbowes@dashingrocket.com
+
+
   
 services:
   - mongodb
 
 before_script:
-  - sleep 15
   - mongo test-db --eval 'db.addUser("test-user", "test-pass");'
+  
+env:
+  - CI_REPORTS=shippable/testresults COVERAGE_REPORTS=shippable/codecoverage
   
 addons:
   code_climate:
