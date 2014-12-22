@@ -4,12 +4,6 @@ rvm:
   - 2.1.5
   - 2.0.0
   - 1.9.3
-
-notifications:
-  email:
-    - jbowes@dashingrocket.com
-
-
   
 services:
   - mongodb
@@ -20,7 +14,7 @@ before_script:
 env:
   - CI_REPORTS=shippable/testresults COVERAGE_REPORTS=shippable/codecoverage
   
-addons:
-  code_climate:
-    repo_token: 34b485bbd9bfa6ee8b0ee9d9d9de2d310c560a4603813957e438cc1c5a695308
+notifications:
+  email:
+    - jbowes@dashingrocket.com
     
