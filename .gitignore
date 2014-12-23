@@ -37,3 +37,6 @@ build/
 # Specific to IntelliJ
 /.idea/
 *.iml
+
+test/mongo_config_helper.rb
+test/reports

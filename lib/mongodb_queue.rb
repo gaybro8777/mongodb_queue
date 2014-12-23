@@ -85,7 +85,7 @@ module MongoDBQueue
       queues = [queues].flatten
       queue_list = []
       
-      doc = get_existing_doc(unique_field)
+      doc = get_existing_doc(data, unique_field)
 
       if doc.nil?
         queues.each {|q| queue_list << {name: q, status: :queue, queue_timestamp: Time.now}}
@@ -114,9 +114,9 @@ module MongoDBQueue
       end
     end
     
-    def get_existing_doc(unique_field)
+    def get_existing_doc(data, unique_field)
       if unique_field
-        @queue.find({unique_field => data[:sha256]}).next_document
+        @queue.find({unique_field => data[unique_field]}).next_document
       else
         nil
       end
