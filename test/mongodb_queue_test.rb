@@ -9,13 +9,6 @@ class MongoDBQueueTest < Test::Unit::TestCase
   # to set up fixture information.
   def setup
     @config = get_config
-    
-    begin
-      # Allow overriding of config for local testing
-      require_relative 'mongo_config_helper'
-      @config = MongoDBConfigHelper::config
-    end
-
     @queue = MongoDBQueue::MongoDBQueue.new(@config)
   end
 
@@ -26,19 +19,19 @@ class MongoDBQueueTest < Test::Unit::TestCase
 
   # Get config or overridden config
   def get_config
-    config = {
-        address: 'localhost',
-        port: 27017,
-        database: 'test-db',
-        collection: 'test-collection',
-        username: 'test-user',
-        password: 'test-pass'
-    }
-
     begin
       # Allow overriding of config for local testing
       require_relative 'mongo_config_helper'
       config = MongoDBConfigHelper::config
+    rescue LoadError
+      config = {
+          address: 'localhost',
+          port: 27017,
+          database: 'test-db',
+          collection: 'test-collection',
+          username: 'test-user',
+          password: 'test-pass'
+      }
     end
     config
   end
