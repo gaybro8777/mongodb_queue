@@ -5,7 +5,7 @@ mongodb_queue
 
 **This project is under development.**
 
-MongoDB based work queue written in Ruby.  Support multiple queues.
+MongoDB based work queue written in Ruby.  Supports multiple queues.
 
 ## Installation
 
