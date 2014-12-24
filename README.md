@@ -47,6 +47,7 @@ staff_member = queue.dequeue(:staff)
 faculty_member = queue.dequeue(:faculty)
 
 # Delete item when dequeued
+#   Be careful with this if using multiple queues as it deletes the document from all queues.
 queue.enqueue(:faculty, person)
 faculty_member = queue.dequeue(:faculty, {delete: true)
 

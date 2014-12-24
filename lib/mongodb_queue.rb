@@ -5,14 +5,16 @@ module MongoDBQueue
   class MongoDBQueue
     
     DEFAULT_QUEUE = :default_queue
-    
-    # settings
-    #  :address
-    #  :port
-    #  :database
-    #  :collection
-    #  :username => optional
-    #  :password => optional
+
+    # Initializer
+    # @param settings [Hash] MongoDB connection settings
+    # @option settings [String]   :address MongoDB address
+    # @option settings [Integer]  :port MongoDB port
+    # @option settings [String]   :database MongoDB database to use
+    # @option settings [String]   :collection MongoDB collection to use
+    # @option settings [String]   :username MongoDB username to use (optional)
+    # @option settings [String]   :password MongoDB password to use (optional)
+    # @param logger [Logger] Use a specific logger, otherwise logs to STDOUT
     def initialize(settings, logger=nil)
       @logger = logger || Logger.new(STDOUT)
       check_settings(settings)
@@ -21,24 +23,31 @@ module MongoDBQueue
       connect_mongo
     end
     
+    # Disconnects from MongoDB.  Call before exiting.
     def destroy
       begin
         disconnect_mongo
       rescue; end
     end
-    
-    # opts:
-    #  :unique_field => Prevent duplicate documents being queued on the same queue by this unique field
+
+    # Add an object to a queue
+    # @param queue_names [Array] A list of queues to add the object to 
+    # @param object [Hash] The object to queue
+    # @param opts [Hash] Options
+    # @option opts [String] :unique_field Prevent duplicate documents being queued on the same queue by this unique field
     def enqueue(queue_names, object, opts={})
       connect_mongo
       unique_field = opts[:unique_field]
       set_unique unique_field
       send_queues(queue_names, object, unique_field)
     end
-    
-    # opts
-    #  :status => default: dequeue
-    #  :delete => default false.  Be careful with this if using multiple queues as it deletes the document from all queues.
+
+    # Gets an object from a queue
+    # @param queue_name [String] The queue to get the object from
+    # @param opts [Hash] Options
+    # @option opts [String]   :status The status to mark the document as after it's dequeued.  Defaults to 'dequeue'
+    # @option opts [Boolean] :delete Delete the object from ALL queues when dequeued.
+    # @return [Hash] Queued object or nil
     def dequeue(queue_name, opts={})
       connect_mongo
       @logger.info 'Checking queue'
@@ -54,10 +63,14 @@ module MongoDBQueue
       end
     end
     
+    # A simple interface for queueing objects.  This utilizes one queue. Should be used with {#simple_dequeue}
+    # @param object [Hash] The object to queue
     def simple_enqueue(object)
       enqueue(DEFAULT_QUEUE, object)
     end
     
+    # A simple interface for dequeueing an object.  This utilized one queue and deletes the document when done.  Should be used with {#simple_enqueue}
+    # @return [Hash] Queued object or nil
     def simple_dequeue
       dequeue(DEFAULT_QUEUE, {delete: true})
     end
