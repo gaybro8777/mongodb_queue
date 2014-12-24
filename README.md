@@ -29,12 +29,56 @@ $ gem install mongodb_queue
 require 'mongodb_queue'
 
 queue = MongoDBQueue::MongoDBQueue.new({address: 'localhost', port: 27017, database: 'test-db', collection: 'test-queue'})
-
 person = {name: 'John', age: 32, id: '123456789'}
+person2 = {name: 'James', age: 24, id: '123456789'}
 
 # Basic Usage
+queue.simple_enqueue(person)
+queued_person = queue.simple_dequeue
+
+# Multiple Queues
 queue.enqueue([:faculty, :staff], person)
-queue.dequeue(:faculty)
+faculty_member = queue.dequeue(:faculty)
+staff_member = queue.dequeue(:staff)
+
+# Prevent Duplicate Items
+@queue.enqueue(:faculty, person, {unique_field: :id_num})
+@queue.enqueue(:faculty, person2, {unique_field: :id_num})  # This wont be queued
+faculty_member = queue.dequeue(:faculty)
+
+# Delete item when dequeued
+queue.enqueue(:faculty, person)
+faculty_member = queue.dequeue(:faculty, {delete: true)
+
+# Use a different dequeued state
+queue.enqueue(:faculty, person)
+faculty_member = queue.dequeue(:faculty, {status: :processing)
+```
+
+## Sample MongoDB Document
+
+This is a document that has been added to 2 queues - test_queue and test_queue2.  It has already been dequeued from test_queue
+
+``` json
+{
+    "_id" : ObjectId("549b1678b83b50d6bf000001"),
+    "name" : "John",
+    "age" : 32,
+    "id_num" : "123456789",
+    "queue" : [
+        {
+            "name" : "test_queue",
+            "status" : "dequeue",
+            "queue_timestamp" : ISODate("2014-12-24T19:39:36.051Z"),
+            "dequeue_timestamp" : ISODate("2014-12-24T19:39:36.053Z")
+        },
+        {
+            "name" : "test_queue2",
+            "status" : "queue",
+            "queue_timestamp" : ISODate("2014-12-24T19:39:55.052Z"),
+        }
+    ]
+}
 ```
 
 ## Contributing
