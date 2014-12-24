@@ -47,6 +47,8 @@ class MongoDBQueueTest < Test::Unit::TestCase
     collection = db[config[:collection]]
     collection.remove
     collection.drop_indexes
+    down_client.close
+    @queue.destroy
   end
 
   def assert_empty_queue(queue)
