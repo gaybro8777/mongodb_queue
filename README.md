@@ -1,9 +1,7 @@
 mongodb_queue
 =============
 
-[![Build Status](https://api.shippable.com/projects/5498868ed46935d5fbc0d547/badge?branchName=master)](https://app.shippable.com/projects/5498868ed46935d5fbc0d547/builds/latest)
-
-**This project is under development.**
+[![Build Status](https://api.shippable.com/projects/5498868ed46935d5fbc0d547/badge?branchName=master)](https://app.shippable.com/projects/5498868ed46935d5fbc0d547/builds/latest) [![Gem Version](https://badge.fury.io/rb/mongodb_queue.svg)](http://badge.fury.io/rb/mongodb_queue)
 
 MongoDB based work queue written in Ruby.  Supports multiple queues.
 
