@@ -129,9 +129,6 @@ class MongoDBQueueTest < Test::Unit::TestCase
     person1[:id_num] = 123
     person2[:id_num] = person1[:id_num]
     
-    puts "#{person1}"
-    puts "#{person2}"
-
     assert_not_nil @queue.enqueue(:test_queue, person1, {unique_field: :id_num})
     assert_nil @queue.enqueue(:test_queue, person2, {unique_field: :id_num})
 
