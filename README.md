@@ -1,7 +1,7 @@
 mongodb_queue
 =============
 
-[![Build Status](https://api.shippable.com/projects/5498868ed46935d5fbc0d547/badge?branchName=master)](https://app.shippable.com/projects/5498868ed46935d5fbc0d547/builds/latest) [![Code Climate](https://codeclimate.com/github/dashingrocket/mongodb_queue/badges/gpa.svg)](https://codeclimate.com/github/dashingrocket/mongodb_queue) [![Test Coverage](https://codeclimate.com/github/dashingrocket/mongodb_queue/badges/coverage.svg)](https://codeclimate.com/github/dashingrocket/mongodb_queue)
+[![Build Status](https://api.shippable.com/projects/5498868ed46935d5fbc0d547/badge?branchName=master)](https://app.shippable.com/projects/5498868ed46935d5fbc0d547/builds/latest)
 
 **This project is under development.**
 
