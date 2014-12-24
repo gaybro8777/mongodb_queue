@@ -4,6 +4,8 @@ require 'mongo'
 module MongoDBQueue
   class MongoDBQueue
     
+    DEFAULT_QUEUE = :default_queue
+    
     # settings
     #  :address
     #  :port
@@ -52,6 +54,14 @@ module MongoDBQueue
       end
     end
     
+    def simple_enqueue(object)
+      enqueue(DEFAULT_QUEUE, object)
+    end
+    
+    def simple_dequeue
+      dequeue(DEFAULT_QUEUE, {delete: true})
+    end
+    
     private
     def check_settings(settings)
       raise 'No database address set' if settings[:address].nil?
@@ -83,6 +93,8 @@ module MongoDBQueue
 
     def send_queues(queues, data, unique_field)
       queues = [queues].flatten
+      queues.reject!{|q| q.nil? || q.empty?}
+      
       queue_list = []
       
       doc = get_existing_doc(data, unique_field)
@@ -91,10 +103,11 @@ module MongoDBQueue
         queues.each {|q| queue_list << {name: q, status: :queue, queue_timestamp: Time.now}}
         if queue_list.empty?
           @logger.info "Skipping item #{data.object_id}.  No destination queues."
+          return nil
         else
           data[:queue] = queue_list
-          @logger.info "\tQueuing item #{data.object_id} into #{queue_list.collect{|q|q[:name]}}"
-          @queue.insert data
+          @logger.info "Queuing item #{data.object_id} into #{queue_list.collect{|q|q[:name]}}"
+          return @queue.insert data
         end
       else
         @logger.info "\tAlready received unique #{data[unique_field]}."
@@ -107,9 +120,10 @@ module MongoDBQueue
 
         if queue_list.empty?
           @logger.info "\t\tSkipping item #{data[unique_field]}.  No new queues"
+          return nil
         else
-          @logger.info "\t\tQueuing item #{data[unique_field]} into #{queue_list.collect{|q|q[:name]}}"
-          @queue.update({'_id' => docid}, {'$set' => data, '$addToSet' => { queue: { '$each' =>queue_list }}})
+          @logger.info "Queuing item #{data[unique_field]} into #{queue_list.collect{|q|q[:name]}}"
+          return @queue.update({'_id' => docid}, {'$set' => data, '$addToSet' => { queue: { '$each' =>queue_list }}})
         end
       end
     end
