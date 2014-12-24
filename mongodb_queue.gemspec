@@ -10,8 +10,8 @@ Gem::Specification.new do |spec|
   spec.email         = ['jbowes@dashingrocket.com']
   spec.summary       = 'MongoDB Messaging Queue'
   spec.description   = 'A mongoDB based messaging queue that supports multiple queues'
-  spec.homepage      = 'http://www.dashingrocket.com'
-  spec.license       = 'Apache'
+  spec.homepage      = 'https://github.com/dashingrocket/mongodb_queue'
+  spec.license       = 'Apache-2.0'
 
   spec.files         = `git ls-files -z`.split("\x0")
   spec.executables   = spec.files.grep(%r{^bin/}) { |f| File.basename(f) }
