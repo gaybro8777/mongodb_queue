@@ -18,7 +18,7 @@ module MongoDBQueue
     # @option settings [String]   :collection MongoDB collection to use
     # @option settings [String]   :username MongoDB username to use (optional)
     # @option settings [String]   :password MongoDB password to use (optional)
-    # @param logger [Logger] Use a specific logger, otherwise logs to STDOUT
+    # @param logger [Logger]  Use a specific logger, otherwise logs to STDOUT
     def initialize(settings, logger=nil)
       @logger = logger || Logger.new(STDOUT)
       check_settings(settings)
@@ -49,8 +49,8 @@ module MongoDBQueue
     # Gets an object from a queue
     # @param queue_name [String] The queue to get the object from
     # @param opts [Hash] Options
-    # @option opts [String]   :status The status to mark the document as after it's dequeued.  Defaults to 'dequeue'
-    # @option opts [Boolean] :delete Delete the object from ALL queues when dequeued.
+    # @option opts [String]  :status (:dequeue) The status to mark the document as after it's dequeued.
+    # @option opts [Boolean] :delete (false) Delete the object from ALL queues when dequeued.
     # @return [Hash] Queued object or nil
     def dequeue(queue_name, opts={})
       connect_mongo
