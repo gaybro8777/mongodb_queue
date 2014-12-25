@@ -131,9 +131,9 @@ module MongoDBQueue
       else
         @logger.info "\tAlready received unique #{data[unique_field]}."
         docid = doc['_id']
-        prevous_queues = doc['queue']
+        previous_queues = doc['queue']
         queues.each do |q|
-          exists = prevous_queues.any? {|h| h['name'] == q}
+          exists = previous_queues.any? {|h| h['name'] == q}
           queue_list << {name: q, status: :queue, queue_timestamp: Time.now} unless exists
         end
 
