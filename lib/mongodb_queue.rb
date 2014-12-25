@@ -2,8 +2,12 @@ require 'logger'
 require 'mongo'
 
 module MongoDBQueue
+  # MongoDB Backed Queue
+  #
+  # @author Jesse Bowes
+  # @since 0.0.1
   class MongoDBQueue
-    
+    # The default queue used by {#simple_enqueue} and {#simple_dequeue}
     DEFAULT_QUEUE = :default_queue
 
     # Initializer
@@ -65,12 +69,14 @@ module MongoDBQueue
     
     # A simple interface for queueing objects.  This utilizes one queue. Should be used with {#simple_dequeue}
     # @param object [Hash] The object to queue
+    # @since 0.1.0
     def simple_enqueue(object)
       enqueue(DEFAULT_QUEUE, object)
     end
     
     # A simple interface for dequeueing an object.  This utilized one queue and deletes the document when done.  Should be used with {#simple_enqueue}
     # @return [Hash] Queued object or nil
+    # @since 0.1.0
     def simple_dequeue
       dequeue(DEFAULT_QUEUE, {delete: true})
     end
