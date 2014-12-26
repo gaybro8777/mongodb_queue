@@ -1,9 +1,9 @@
 language: ruby
 
 rvm:
-  - 2.1.5
+  - 2.1
   - 2.0.0
-  - 1.9.3
+  - 1.9
   
 services:
   - mongodb
@@ -13,6 +13,8 @@ before_script:
   
 env:
   - CI_REPORTS=shippable/testresults COVERAGE_REPORTS=shippable/codecoverage
+
+cache: true
   
 notifications:
   email:
