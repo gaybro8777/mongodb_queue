@@ -39,7 +39,7 @@ module MongoDBQueue
     # @param object [Hash] The object to queue
     # @param opts [Hash] Options
     # @option opts [String] :unique_field Prevent duplicate documents being queued on the same queue by this unique field
-    def enqueue(queue_names, object, opts={})
+    def enqueue(object, queue_names=[DEFAULT_QUEUE], opts={})
       connect_mongo
       unique_field = opts[:unique_field]
       set_unique unique_field
@@ -52,7 +52,7 @@ module MongoDBQueue
     # @option opts [String]  :status (:dequeue) The status to mark the document as after it's dequeued.
     # @option opts [Boolean] :delete (false) Delete the object from ALL queues when dequeued.
     # @return [Hash] Queued object or nil
-    def dequeue(queue_name, opts={})
+    def dequeue(queue_name=DEFAULT_QUEUE, opts={})
       connect_mongo
       @logger.info 'Checking queue'
       status = opts[:status] || 'dequeue'
@@ -65,20 +65,6 @@ module MongoDBQueue
       else
         @queue.find_and_modify(query: query, update: {'$set' => {'queue.$.status' => status, "queue.$.#{status}_timestamp" => Time.now}})
       end
-    end
-    
-    # A simple interface for queueing objects.  This utilizes one queue. Should be used with {#simple_dequeue}
-    # @param object [Hash] The object to queue
-    # @since 0.1.0
-    def simple_enqueue(object)
-      enqueue(DEFAULT_QUEUE, object)
-    end
-    
-    # A simple interface for dequeueing an object.  This utilized one queue and deletes the document when done.  Should be used with {#simple_enqueue}
-    # @return [Hash] Queued object or nil
-    # @since 0.1.0
-    def simple_dequeue
-      dequeue(DEFAULT_QUEUE, {delete: true})
     end
     
     private
