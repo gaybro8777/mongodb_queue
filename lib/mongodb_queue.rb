@@ -148,6 +148,24 @@ module MongoDBQueue
       num_modified
     end
 
+    # Sets a specific field as being unique
+    # @param unique_field [String] The field that is unique
+    # @return [String] the name of the index created (if not already created)
+    def set_unique(unique_field)
+      if unique_field && !@unique_fields.include?(unique_field)
+        @unique_fields << unique_field
+        create_index(unique_field, {unique: true})
+      end
+    end
+
+    # Passthrough to create a Mongo Index
+    # @see Mongo::Collection#create_index
+    # @param spec [String] The field that is unique
+    # @return [String] the name of the index created.
+    def create_index(spec, opts={})
+      @queue.create_index(spec, opts)
+    end
+
     private
     def check_settings(settings)
       raise 'No database address set' if settings[:address].nil?
@@ -168,13 +186,6 @@ module MongoDBQueue
 
     def disconnect_mongo
       @client.close if @client
-    end
-    
-    def set_unique(unique_field)
-      if unique_field && !@unique_fields.include?(unique_field)
-        @queue.create_index(unique_field, {unique: true})
-        @unique_fields << unique_field
-      end
     end
 
     def send_queues(queues, data, unique_field)
