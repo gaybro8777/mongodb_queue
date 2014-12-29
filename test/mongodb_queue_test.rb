@@ -51,7 +51,7 @@ class MongoDBQueueTest < Test::Unit::TestCase
     @queue.destroy
   end
 
-  def assert_empty_queue(queue)
+  def assert_empty_queue(queue=MongoDBQueue::MongoDBQueue::DEFAULT_QUEUE)
     assert_nil(@queue.dequeue(queue)) # Queue is empty
   end
 
@@ -78,20 +78,8 @@ class MongoDBQueueTest < Test::Unit::TestCase
     exception = assert_raise(RuntimeError) {MongoDBQueue::MongoDBQueue.new(@config)}
     assert_equal('No collection set', exception.message)
   end
-  
+
   def test_enqueue_dequeue
-    person = get_person
-    assert_not_nil @queue.enqueue(person, :test_queue)
-    dequeued = @queue.dequeue(:test_queue)
-
-    assert_equal(person[:name], dequeued['name'])
-    assert_equal(person[:age], dequeued['age'])
-    assert_equal(person[:id_num], dequeued['id_num'])
-
-    assert_empty_queue(:test_queue)
-  end
-  
-  def test_enqueue_dequeue_basic
     person = get_person
     assert_not_nil @queue.enqueue(person)
     dequeued = @queue.dequeue
@@ -102,24 +90,36 @@ class MongoDBQueueTest < Test::Unit::TestCase
 
     assert_nil(@queue.dequeue)
   end
-
-  def test_queue_same_doc_twice
-    assert_not_nil @queue.enqueue(get_person, :test_queue)
-    assert_not_nil @queue.enqueue(get_person, :test_queue)
-    
+  
+  def test_enqueue_dequeue_with_queue
     person = get_person
-
+    assert_not_nil @queue.enqueue(person, :test_queue)
     dequeued = @queue.dequeue(:test_queue)
+
     assert_equal(person[:name], dequeued['name'])
     assert_equal(person[:age], dequeued['age'])
     assert_equal(person[:id_num], dequeued['id_num'])
 
-    dequeued2 = @queue.dequeue(:test_queue)
+    assert_empty_queue(:test_queue)
+  end
+
+  def test_queue_same_doc_twice
+    assert_not_nil @queue.enqueue(get_person)
+    assert_not_nil @queue.enqueue(get_person)
+    
+    person = get_person
+
+    dequeued = @queue.dequeue
+    assert_equal(person[:name], dequeued['name'])
+    assert_equal(person[:age], dequeued['age'])
+    assert_equal(person[:id_num], dequeued['id_num'])
+
+    dequeued2 = @queue.dequeue
     assert_equal(person[:name], dequeued2['name'])
     assert_equal(person[:age], dequeued2['age'])
     assert_equal(person[:id_num], dequeued2['id_num'])
 
-    assert_empty_queue(:test_queue)
+    assert_empty_queue
   end
 
   def test_queue_unique_doc_twice

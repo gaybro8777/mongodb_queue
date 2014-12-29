@@ -7,7 +7,6 @@ module MongoDBQueue
   # @author Jesse Bowes
   # @since 0.0.1
   class MongoDBQueue
-    # The default queue used by {#simple_enqueue} and {#simple_dequeue}
     DEFAULT_QUEUE = :default_queue
 
     # Initializer
@@ -35,8 +34,8 @@ module MongoDBQueue
     end
 
     # Add an object to a queue
-    # @param queue_names [Array] A list of queues to add the object to 
     # @param object [Hash] The object to queue
+    # @param queue_names [Array] A list of queues to add the object to.
     # @param opts [Hash] Options
     # @option opts [String] :unique_field Prevent duplicate documents being queued on the same queue by this unique field
     def enqueue(object, queue_names=[DEFAULT_QUEUE], opts={})

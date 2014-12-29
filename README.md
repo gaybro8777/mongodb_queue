@@ -29,30 +29,37 @@ require 'mongodb_queue'
 
 queue = MongoDBQueue::MongoDBQueue.new({address: 'localhost', port: 27017, database: 'test-db', collection: 'test-queue'})
 person = {name: 'John', age: 32, id: '123456789'}
-person2 = {name: 'James', age: 24, id: '123456789'}
+person2 = {name: 'Jane', age: 29, id: '123456789'}
 
 # Basic Usage
-queue.simple_enqueue(person)
-queued_person = queue.simple_dequeue
+queue.enqueue(person)
+queued_person = queue.dequeue
+
+# Custom Queue Names
+queue.enqueue(person, :friends)
+friend = queue.dequeue(:friends)
 
 # Multiple Queues
-queue.enqueue([:faculty, :staff], person)
+queue.enqueue(person, [:faculty, :staff])
 faculty_member = queue.dequeue(:faculty)
 staff_member = queue.dequeue(:staff)
 
 # Prevent Duplicate Items
-@queue.enqueue(:faculty, person, {unique_field: :id_num})
-@queue.enqueue(:faculty, person2, {unique_field: :id_num})  # This wont be queued
+@queue.enqueue(person, :faculty, {unique_field: :id_num})
+@queue.enqueue(person2, :faculty, {unique_field: :id_num})  # This wont be queued
 faculty_member = queue.dequeue(:faculty)
 
 # Delete item when dequeued
 #   Be careful with this if using multiple queues as it deletes the document from all queues.
-queue.enqueue(:faculty, person)
+queue.enqueue(person, :faculty)
 faculty_member = queue.dequeue(:faculty, {delete: true)
 
 # Use a different dequeued state
-queue.enqueue(:faculty, person)
-faculty_member = queue.dequeue(:faculty, {status: :processing)
+queue.enqueue(person)
+faculty_member = queue.dequeue(MongoDBQueue::MongoDBQueue::DEFAULT_QUEUE, {status: :processing)
+
+# Disconnect from MongoDB when done
+queue.destroy
 ```
 
 ## Sample MongoDB Document
