@@ -38,7 +38,6 @@ class MongoDBQueueTest < Test::Unit::TestCase
 
   # Called after every test method runs. Can be used to tear
   # down fixture information.
-
   def teardown
     config = get_config
     down_client = Mongo::MongoClient.new(config[:address], config[:port])
@@ -51,7 +50,7 @@ class MongoDBQueueTest < Test::Unit::TestCase
     @queue.destroy
   end
 
-  def assert_empty_queue(queue=MongoDBQueue::MongoDBQueue::DEFAULT_QUEUE)
+  def assert_empty_queue(queue = MongoDBQueue::DEFAULT_QUEUE)
     assert_nil(@queue.dequeue(queue)) # Queue is empty
   end
 
@@ -162,5 +161,71 @@ class MongoDBQueueTest < Test::Unit::TestCase
 
   def test_no_queue
     assert_nil @queue.enqueue(get_person, [nil, ''])
+  end
+
+  def test_remove_all_with_status_same
+    # q1 & q2 => success
+    @queue.enqueue(get_person, [:queue1, :queue2])
+    @queue.dequeue(:queue1, {status: :success}) 
+    @queue.dequeue(:queue2, {status: :success})
+    assert_equal(1, @queue.remove_all(:success))
+    assert_equal(0, @queue.remove_all(:success))
+  end
+
+  def test_remove_all_with_status_multiple
+    # q1 => success, q2 => error
+    @queue.enqueue(get_person, [:queue1, :queue2])
+    @queue.dequeue(:queue1, {status: :success})
+    @queue.dequeue(:queue2, {status: :error})
+    assert_equal(1, @queue.remove_all([:success, :error]))
+    assert_equal(0, @queue.remove_all([:success, :error]))
+  end
+
+  def test_remove_all_with_status_single
+    # q1 => success, q2 => error
+    @queue.enqueue(get_person, [:queue1])
+    @queue.dequeue(:queue1, {status: :success})
+    assert_equal(1, @queue.remove_all([:success, :error]))
+    assert_equal(0, @queue.remove_all([:success, :error]))
+  end
+
+  def test_remove_all_with_status_missing
+    # q1 => success, q2 => processing
+    @queue.enqueue(get_person, [:queue1, :queue2])
+    @queue.dequeue(:queue1, {status: :success})
+    @queue.dequeue(:queue2, {status: :processing})
+    assert_equal(0, @queue.remove_all([:success, :error]))
+  end
+  
+  def test_requeue_timed_out
+    @queue.enqueue(get_person)
+    @queue.dequeue
+    sleep 0.1
+    assert_nil @queue.dequeue
+    assert_equal(1, @queue.requeue_timed_out(0.1, MongoDBQueue::DEFAULT_DEQUEUE_STATUS))
+    assert_not_nil @queue.dequeue
+  end
+  
+  def test_requeue_timed_out_young
+    @queue.enqueue(get_person)
+    @queue.dequeue
+    assert_nil @queue.dequeue
+    assert_equal(0, @queue.requeue_timed_out(5, MongoDBQueue::DEFAULT_DEQUEUE_STATUS))
+    assert_nil @queue.dequeue
+  end
+  
+  def test_requeue_timed_out_multiple
+    @queue.enqueue(get_person, [:queue1, :queue2, :queue3])
+    @queue.dequeue(:queue1, {status: :success})
+    @queue.dequeue(:queue2, {status: :error})
+    @queue.dequeue(:queue3, {status: :processing})
+    sleep 0.1
+    assert_nil @queue.dequeue(:queue1)
+    assert_nil @queue.dequeue(:queue2)
+    assert_nil @queue.dequeue(:queue3)
+    assert_equal(2, @queue.requeue_timed_out(0.1, [:error, :processing]))
+    assert_nil @queue.dequeue(:queue1)
+    assert_not_nil @queue.dequeue(:queue2)
+    assert_not_nil @queue.dequeue(:queue3)
   end
 end

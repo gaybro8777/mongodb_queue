@@ -52,11 +52,11 @@ faculty_member = queue.dequeue(:faculty)
 # Delete item when dequeued
 #   Be careful with this if using multiple queues as it deletes the document from all queues.
 queue.enqueue(person, :faculty)
-faculty_member = queue.dequeue(:faculty, {delete: true)
+faculty_member = queue.dequeue(:faculty, {delete: true})
 
-# Use a different dequeued state
+# Use a different dequeued status
 queue.enqueue(person)
-faculty_member = queue.dequeue(MongoDBQueue::MongoDBQueue::DEFAULT_QUEUE, {status: :processing)
+faculty_member = queue.dequeue(MongoDBQueue::DEFAULT_QUEUE, {status: :processing})
 
 # Disconnect from MongoDB when done
 queue.destroy
@@ -82,7 +82,7 @@ This is a document that has been added to 2 queues - test_queue and test_queue2.
         {
             "name" : "test_queue2",
             "status" : "queue",
-            "queue_timestamp" : ISODate("2014-12-24T19:39:55.052Z"),
+            "queue_timestamp" : ISODate("2014-12-24T19:39:55.052Z")
         }
     ]
 }

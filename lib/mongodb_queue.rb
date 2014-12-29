@@ -2,13 +2,20 @@ require 'logger'
 require 'mongo'
 
 module MongoDBQueue
+  # The default queue name
+  DEFAULT_QUEUE = :default_queue
+
+  # The default status of a document that is queued.
+  DEFAULT_QUEUE_STATUS = 'queued'
+  
+  # The default status of a document that is dequeued.
+  DEFAULT_DEQUEUE_STATUS = 'dequeued'
+  
+
   # MongoDB Backed Queue
   #
   # @author Jesse Bowes
-  # @since 0.0.1
   class MongoDBQueue
-    DEFAULT_QUEUE = :default_queue
-
     # Initializer
     # @param settings [Hash] MongoDB connection settings
     # @option settings [String]   :address MongoDB address
@@ -38,7 +45,7 @@ module MongoDBQueue
     # @param queue_names [Array] A list of queues to add the object to.
     # @param opts [Hash] Options
     # @option opts [String] :unique_field Prevent duplicate documents being queued on the same queue by this unique field
-    def enqueue(object, queue_names=[DEFAULT_QUEUE], opts={})
+    def enqueue(object, queue_names = [DEFAULT_QUEUE], opts={})
       connect_mongo
       unique_field = opts[:unique_field]
       set_unique unique_field
@@ -48,16 +55,16 @@ module MongoDBQueue
     # Gets an object from a queue
     # @param queue_name [String] The queue to get the object from
     # @param opts [Hash] Options
-    # @option opts [String]  :status (:dequeue) The status to mark the document as after it's dequeued.
+    # @option opts [String]  :status ({DEFAULT_DEQUEUE_STATUS}) The status to mark the document as after it's dequeued.
     # @option opts [Boolean] :delete (false) Delete the object from ALL queues when dequeued.
     # @return [Hash] Queued object or nil
-    def dequeue(queue_name=DEFAULT_QUEUE, opts={})
+    def dequeue(queue_name = DEFAULT_QUEUE, opts={})
       connect_mongo
       @logger.info 'Checking queue'
-      status = opts[:status] || 'dequeue'
+      status = opts[:status] || DEFAULT_DEQUEUE_STATUS
       delete = opts[:delete]
 
-      query = {queue: {'$elemMatch' => {name: queue_name, status: :queue}}}
+      query = {queue: {'$elemMatch' => {name: queue_name, status: DEFAULT_QUEUE_STATUS}}}
       
       if delete
         @queue.find_and_modify(query: query, remove: true)
@@ -65,6 +72,60 @@ module MongoDBQueue
         @queue.find_and_modify(query: query, update: {'$set' => {'queue.$.status' => status, "queue.$.#{status}_timestamp" => Time.now}})
       end
     end
+    
+    # Removes all MongoDB documents that have all their queue statuses set to the provided status(es).
+    # @param statuses [Array] A list of queue statuses that qualify a document for removal
+    # @return [Integer] Number of documents removed
+    def remove_all(statuses = [DEFAULT_DEQUEUE_STATUS])
+      statuses = [statuses].flatten
+      num_removed = 0
+      potential_items = @queue.find({'queue.status' => {'$in' => statuses}}, {fields: ['queue.status']})
+      potential_items.each do |item|
+        id = item['_id']
+        item_statuses = item['queue'].map{|s|s['status']}
+        item_statuses.uniq!
+        other_statuses = item_statuses - statuses
+        
+        if other_statuses.empty?
+          result = @queue.remove({'_id' => id})
+          num_removed += result['n']
+        end
+      end
+      num_removed
+    end
+    
+    # Requeues all documents that were dequeued more than timeout_sec ago and have a status that is in statuses
+    # @param statuses [Array] A list of queue statuses that qualify a document for requeuing
+    # @return [Integer] Number of documents requeued
+    def requeue_timed_out(timeout_sec, statuses = [DEFAULT_DEQUEUE_STATUS])
+      statuses = [statuses].flatten
+      timeout_time = Time.now - timeout_sec
+      num_requeued = 0
+      potential_items = @queue.find({'queue.status' => {'$in' => statuses}}, {fields: ['queue']})
+
+      potential_items.each do |item|
+        id = item['_id']
+        item['queue'].each do |queue|
+          queue_name = queue['name']
+          status = queue['status']
+          timestamp_field = "#{status}_timestamp"
+          timestamp = queue[timestamp_field]
+          
+          if statuses.include?(status) && timestamp < timeout_time
+            # Requeue this item
+            result = @queue.update({'_id' => id, 'queue.name' => queue_name}, {'$set' => {'queue.$.status' => DEFAULT_QUEUE_STATUS}})
+            num_requeued += result['nModified']
+          end
+        end
+      end
+      num_requeued
+    end
+    
+    def unset_all(statueses)
+      # TODO Needs Implementation.  Similar query to remove_all
+    end
+    
+    
     
     private
     def check_settings(settings)
@@ -104,7 +165,7 @@ module MongoDBQueue
       doc = get_existing_doc(data, unique_field)
 
       if doc.nil?
-        queues.each {|q| queue_list << {name: q, status: :queue, queue_timestamp: Time.now}}
+        queues.each {|q| queue_list << {name: q, status: DEFAULT_QUEUE_STATUS, "#{DEFAULT_QUEUE_STATUS}_timestamp" => Time.now}}
         if queue_list.empty?
           @logger.info "Skipping item #{data.object_id}.  No destination queues."
           return nil
@@ -119,7 +180,7 @@ module MongoDBQueue
         previous_queues = doc['queue']
         queues.each do |q|
           exists = previous_queues.any? {|h| h['name'] == q}
-          queue_list << {name: q, status: :queue, queue_timestamp: Time.now} unless exists
+          queue_list << {name: q, status: DEFAULT_QUEUE_STATUS, "#{DEFAULT_QUEUE_STATUS}_timestamp" => Time.now} unless exists
         end
 
         if queue_list.empty?
