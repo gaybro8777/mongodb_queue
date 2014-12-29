@@ -88,7 +88,7 @@ module MongoDBQueue
         
         if other_statuses.empty?
           result = @queue.remove({'_id' => id})
-          num_removed += result['n']
+          num_removed += result['n'] if result['n']
         end
       end
       num_removed
@@ -142,7 +142,7 @@ module MongoDBQueue
 
         if other_statuses.empty?
           result = @queue.update({'_id' => id}, {'$unset' => fields_hash})
-          num_modified += result['nModified']
+          num_modified += result['nModified'] if result['nModified']
         end
       end
       num_modified
