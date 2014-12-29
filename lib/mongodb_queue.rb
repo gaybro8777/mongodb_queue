@@ -143,7 +143,6 @@ module MongoDBQueue
         if other_statuses.empty?
           result = @queue.update({'_id' => id}, {'$unset' => fields_hash})
           num_modified += result['n'] if result['n']
-          STDERR.puts("#{item} => #{result}")
         end
       end
       num_modified
