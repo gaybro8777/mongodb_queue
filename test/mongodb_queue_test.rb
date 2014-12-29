@@ -219,9 +219,9 @@ class MongoDBQueueTest < Test::Unit::TestCase
   def test_requeue_timed_out
     @queue.enqueue(get_person)
     @queue.dequeue
-    sleep 0.1
+    sleep 1
     assert_nil @queue.dequeue
-    assert_equal(1, @queue.requeue_timed_out(0.1, MongoDBQueue::DEFAULT_DEQUEUE_STATUS))
+    assert_equal(1, @queue.requeue_timed_out(1, MongoDBQueue::DEFAULT_DEQUEUE_STATUS))
     assert_not_nil @queue.dequeue
   end
   
@@ -238,11 +238,11 @@ class MongoDBQueueTest < Test::Unit::TestCase
     @queue.dequeue(:queue1, {status: :success})
     @queue.dequeue(:queue2, {status: :error})
     @queue.dequeue(:queue3, {status: :processing})
-    sleep 0.1
+    sleep 1
     assert_nil @queue.dequeue(:queue1)
     assert_nil @queue.dequeue(:queue2)
     assert_nil @queue.dequeue(:queue3)
-    assert_equal(2, @queue.requeue_timed_out(0.1, [:error, :processing]))
+    assert_equal(2, @queue.requeue_timed_out(1, [:error, :processing]))
     assert_nil @queue.dequeue(:queue1)
     assert_not_nil @queue.dequeue(:queue2)
     assert_not_nil @queue.dequeue(:queue3)
