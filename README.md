@@ -67,6 +67,9 @@ queue.requeue_timed_out(300)
 # Requeue documents that have been in a processing status for 5 minutes (300 seconds)
 queue.requeue_timed_out(300, :processing)
 
+# Unset the name field for successfully processed documents
+queue.unset_all([:success], :name)
+
 # Disconnect from MongoDB when done
 queue.destroy
 ```

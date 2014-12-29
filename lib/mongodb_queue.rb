@@ -74,7 +74,7 @@ module MongoDBQueue
     end
     
     # Removes all MongoDB documents that have all their queue statuses set to the provided status(es).
-    # @param statuses [Array] A list of queue statuses that qualify a document for removal
+    # @param statuses [Array] Queue statuses that qualify a document for removal
     # @return [Integer] Number of documents removed
     def remove_all(statuses = [DEFAULT_DEQUEUE_STATUS])
       statuses = [statuses].flatten
@@ -95,7 +95,7 @@ module MongoDBQueue
     end
     
     # Requeues all documents that were dequeued more than timeout_sec ago and have a status that is in statuses
-    # @param statuses [Array] A list of queue statuses that qualify a document for requeuing
+    # @param statuses [Array] Queue statuses that qualify a document for requeuing
     # @return [Integer] Number of documents requeued
     def requeue_timed_out(timeout_sec, statuses = [DEFAULT_DEQUEUE_STATUS])
       statuses = [statuses].flatten
@@ -120,13 +120,34 @@ module MongoDBQueue
       end
       num_requeued
     end
-    
-    def unset_all(statueses)
-      # TODO Needs Implementation.  Similar query to remove_all
+
+    # Unsets specified fields in MongoDB documents that have all their queue statuses set to the provided status(es).
+    # @param statuses [Array] Queue statuses that qualify a document for unsetting
+    # @param fields [Array] Fields to be unset
+    # @return [Integer] Number of documents removed
+    def unset_all(statuses, fields)
+      statuses = [statuses].flatten
+      fields = [fields].flatten
+      num_modified = 0
+      potential_items = @queue.find({'queue.status' => {'$in' => statuses}}, {fields: ['queue.status']})
+      fields_hash = {}
+      fields.each do |field|
+        fields_hash[field] = ''
+      end
+      potential_items.each do |item|
+        id = item['_id']
+        item_statuses = item['queue'].map{|s|s['status']}
+        item_statuses.uniq!
+        other_statuses = item_statuses - statuses
+
+        if other_statuses.empty?
+          result = @queue.update({'_id' => id}, {'$unset' => fields_hash})
+          num_modified += result['nModified']
+        end
+      end
+      num_modified
     end
-    
-    
-    
+
     private
     def check_settings(settings)
       raise 'No database address set' if settings[:address].nil?

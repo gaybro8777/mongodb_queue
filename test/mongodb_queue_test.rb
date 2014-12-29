@@ -10,6 +10,8 @@ class MongoDBQueueTest < Test::Unit::TestCase
   def setup
     @config = get_config
     @queue = MongoDBQueue::MongoDBQueue.new(@config)
+    
+    @inspect_queue = connect_queue
   end
 
   # the uby mongo driver appears to derive _id from ruby's object id, so lets make a new object
@@ -35,18 +37,21 @@ class MongoDBQueueTest < Test::Unit::TestCase
     end
     config
   end
+  
+  def connect_queue
+    config = get_config
+    @inspect_client = Mongo::MongoClient.new(config[:address], config[:port])
+    db = @inspect_client[config[:database]]
+    db.authenticate(config[:username], config[:password]) if config[:username] || config[:password]
+    db[config[:collection]]
+  end
 
   # Called after every test method runs. Can be used to tear
   # down fixture information.
   def teardown
-    config = get_config
-    down_client = Mongo::MongoClient.new(config[:address], config[:port])
-    db = down_client[config[:database]]
-    db.authenticate(config[:username], config[:password]) if config[:username] || config[:password]
-    collection = db[config[:collection]]
-    collection.remove
-    collection.drop_indexes
-    down_client.close
+    @inspect_queue.remove
+    @inspect_queue.drop_indexes
+    @inspect_client.close
     @queue.destroy
   end
 
@@ -189,7 +194,7 @@ class MongoDBQueueTest < Test::Unit::TestCase
     assert_equal(0, @queue.remove_all([:success, :error]))
   end
 
-  def test_remove_all_with_status_missing
+  def test_remove_all_not_qualified
     # q1 => success, q2 => processing
     @queue.enqueue(get_person, [:queue1, :queue2])
     @queue.dequeue(:queue1, {status: :success})
@@ -227,5 +232,24 @@ class MongoDBQueueTest < Test::Unit::TestCase
     assert_nil @queue.dequeue(:queue1)
     assert_not_nil @queue.dequeue(:queue2)
     assert_not_nil @queue.dequeue(:queue3)
+  end
+  
+  def test_unset_all
+    @queue.enqueue(get_person, [:queue1, :queue2])
+    @queue.dequeue(:queue1, {status: :success})
+    @queue.dequeue(:queue2, {status: :error})
+    assert_not_nil @inspect_queue.find().next_document['name']
+    assert_equal(1, @queue.unset_all([:success, :error], :name))
+    assert_equal(0, @queue.unset_all([:success, :error], :name))
+    assert_nil @inspect_queue.find().next_document['name']
+  end
+
+  def test_unset_all_not_qualified
+    @queue.enqueue(get_person, [:queue1, :queue2])
+    @queue.dequeue(:queue1, {status: :success})
+    @queue.dequeue(:queue2, {status: :error})
+    assert_not_nil @inspect_queue.find().next_document['name']
+    assert_equal(0, @queue.unset_all([:success], :name))
+    assert_not_nil @inspect_queue.find().next_document['name']
   end
 end
