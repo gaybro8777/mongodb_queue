@@ -180,6 +180,8 @@ module MongoDBQueue
         db = @client[@settings[:database]]
         db.authenticate(@settings[:username], @settings[:password]) if @settings[:username] || @settings[:password]
         @queue = db[@settings[:collection]]
+        @queue.create_index('queue.name')
+        @queue.create_index('queue.status')
         @queue.create_index({'queue.name' => Mongo::ASCENDING, 'queue.status' => Mongo::ASCENDING})
       end
     end
