@@ -254,7 +254,6 @@ class MongoDBQueueTest < Test::Unit::TestCase
     @queue.dequeue(:queue2, {status: :error})
     assert_not_nil @inspect_queue.find().next_document['name']
     assert_equal(1, @queue.unset_all([:success, :error], :name))
-    assert_equal(0, @queue.unset_all([:success, :error], :name))
     assert_nil @inspect_queue.find().next_document['name']
   end
 
