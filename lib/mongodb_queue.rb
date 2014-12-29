@@ -62,7 +62,6 @@ module MongoDBQueue
     # @return [Hash] Queued object or nil
     def dequeue(queue_name = DEFAULT_QUEUE, opts={})
       connect_mongo
-      @logger.info 'Checking queue'
       status = opts[:status] || DEFAULT_DEQUEUE_STATUS
       delete = opts[:delete]
 
