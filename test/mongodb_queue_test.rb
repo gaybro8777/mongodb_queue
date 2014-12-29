@@ -11,7 +11,7 @@ class MongoDBQueueTest < Test::Unit::TestCase
     @config = get_config
     @queue = MongoDBQueue::MongoDBQueue.new(@config)
     
-    @inspect_queue = connect_queue
+    @inspect_queue = @queue.collection
   end
 
   # the uby mongo driver appears to derive _id from ruby's object id, so lets make a new object
@@ -37,21 +37,13 @@ class MongoDBQueueTest < Test::Unit::TestCase
     end
     config
   end
-  
-  def connect_queue
-    config = get_config
-    @inspect_client = Mongo::MongoClient.new(config[:address], config[:port])
-    db = @inspect_client[config[:database]]
-    db.authenticate(config[:username], config[:password]) if config[:username] || config[:password]
-    db[config[:collection]]
-  end
+
 
   # Called after every test method runs. Can be used to tear
   # down fixture information.
   def teardown
     @inspect_queue.remove
     @inspect_queue.drop_indexes
-    @inspect_client.close
     @queue.destroy
   end
 

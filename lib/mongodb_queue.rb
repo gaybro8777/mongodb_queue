@@ -10,12 +10,14 @@ module MongoDBQueue
   
   # The default status of a document that is dequeued.
   DEFAULT_DEQUEUE_STATUS = 'dequeued'
-  
 
   # MongoDB Backed Queue
   #
   # @author Jesse Bowes
   class MongoDBQueue
+    # The underlying queue's collection
+    attr_reader :collection
+    
     # Initializer
     # @param settings [Hash] MongoDB connection settings
     # @option settings [String]   :address MongoDB address
@@ -67,9 +69,9 @@ module MongoDBQueue
       query = {queue: {'$elemMatch' => {name: queue_name, status: DEFAULT_QUEUE_STATUS}}}
       
       if delete
-        @queue.find_and_modify(query: query, remove: true)
+        @collection.find_and_modify(query: query, remove: true)
       else
-        @queue.find_and_modify(query: query, update: {'$set' => {'queue.$.status' => status, "queue.$.#{status}_timestamp" => Time.now}})
+        @collection.find_and_modify(query: query, update: {'$set' => {'queue.$.status' => status, "queue.$.#{status}_timestamp" => Time.now}})
       end
     end
     
@@ -79,7 +81,7 @@ module MongoDBQueue
     def remove_all(statuses = [DEFAULT_DEQUEUE_STATUS])
       statuses = [statuses].flatten
       num_removed = 0
-      potential_items = @queue.find({'queue.status' => {'$in' => statuses}}, {fields: ['queue.status']})
+      potential_items = @collection.find({'queue.status' => {'$in' => statuses}}, {fields: ['queue.status']})
       potential_items.each do |item|
         id = item['_id']
         item_statuses = item['queue'].map{|s|s['status']}
@@ -87,7 +89,7 @@ module MongoDBQueue
         other_statuses = item_statuses - statuses
         
         if other_statuses.empty?
-          result = @queue.remove({'_id' => id})
+          result = @collection.remove({'_id' => id})
           num_removed += result['n'] if result['n']
         end
       end
@@ -101,7 +103,7 @@ module MongoDBQueue
       statuses = [statuses].flatten
       timeout_time = Time.now - timeout_sec
       num_requeued = 0
-      potential_items = @queue.find({'queue.status' => {'$in' => statuses}}, {fields: ['queue']})
+      potential_items = @collection.find({'queue.status' => {'$in' => statuses}}, {fields: ['queue']})
 
       potential_items.each do |item|
         id = item['_id']
@@ -113,7 +115,7 @@ module MongoDBQueue
           
           if statuses.include?(status) && timestamp < timeout_time
             # Requeue this item
-            result = @queue.update({'_id' => id, 'queue.name' => queue_name}, {'$set' => {'queue.$.status' => DEFAULT_QUEUE_STATUS}})
+            result = @collection.update({'_id' => id, 'queue.name' => queue_name}, {'$set' => {'queue.$.status' => DEFAULT_QUEUE_STATUS}})
             num_requeued += result['n'] if result['n']
           end
         end
@@ -129,7 +131,7 @@ module MongoDBQueue
       statuses = [statuses].flatten
       fields = [fields].flatten
       num_modified = 0
-      potential_items = @queue.find({'queue.status' => {'$in' => statuses}}, {fields: ['queue.status']})
+      potential_items = @collection.find({'queue.status' => {'$in' => statuses}}, {fields: ['queue.status']})
       fields_hash = {}
       fields.each do |field|
         fields_hash[field] = ''
@@ -141,7 +143,7 @@ module MongoDBQueue
         other_statuses = item_statuses - statuses
 
         if other_statuses.empty?
-          result = @queue.update({'_id' => id}, {'$unset' => fields_hash})
+          result = @collection.update({'_id' => id}, {'$unset' => fields_hash})
           num_modified += result['n'] if result['n']
         end
       end
@@ -163,7 +165,7 @@ module MongoDBQueue
     # @param spec [String] The field that is unique
     # @return [String] the name of the index created.
     def create_index(spec, opts={})
-      @queue.create_index(spec, opts)
+      @collection.create_index(spec, opts)
     end
 
     private
@@ -179,10 +181,10 @@ module MongoDBQueue
         @client = Mongo::MongoClient.new(@settings[:address], @settings[:port])
         db = @client[@settings[:database]]
         db.authenticate(@settings[:username], @settings[:password]) if @settings[:username] || @settings[:password]
-        @queue = db[@settings[:collection]]
-        @queue.create_index('queue.name')
-        @queue.create_index('queue.status')
-        @queue.create_index({'queue.name' => Mongo::ASCENDING, 'queue.status' => Mongo::ASCENDING})
+        @collection = db[@settings[:collection]]
+        @collection.create_index('queue.name')
+        @collection.create_index('queue.status')
+        @collection.create_index({'queue.name' => Mongo::ASCENDING, 'queue.status' => Mongo::ASCENDING})
       end
     end
 
@@ -206,7 +208,7 @@ module MongoDBQueue
         else
           data[:queue] = queue_list
           @logger.info "Queuing item #{data.object_id} into #{queue_list.collect{|q|q[:name]}}"
-          return @queue.insert data
+          return @collection.insert data
         end
       else
         @logger.info "\tAlready received unique #{data[unique_field]}."
@@ -222,14 +224,14 @@ module MongoDBQueue
           return nil
         else
           @logger.info "Queuing item #{data[unique_field]} into #{queue_list.collect{|q|q[:name]}}"
-          return @queue.update({'_id' => docid}, {'$set' => data, '$addToSet' => { queue: { '$each' =>queue_list }}})
+          return @collection.update({'_id' => docid}, {'$set' => data, '$addToSet' => { queue: { '$each' =>queue_list }}})
         end
       end
     end
     
     def get_existing_doc(data, unique_field)
       if unique_field
-        @queue.find({unique_field => data[unique_field]}).next_document
+        @collection.find({unique_field => data[unique_field]}).next_document
       else
         nil
       end
