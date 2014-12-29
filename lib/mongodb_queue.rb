@@ -114,7 +114,7 @@ module MongoDBQueue
           if statuses.include?(status) && timestamp < timeout_time
             # Requeue this item
             result = @queue.update({'_id' => id, 'queue.name' => queue_name}, {'$set' => {'queue.$.status' => DEFAULT_QUEUE_STATUS}})
-            num_requeued += result['nModified']
+            num_requeued += result['nModified'] if result['nModified']
           end
         end
       end
