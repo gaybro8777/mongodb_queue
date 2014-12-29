@@ -1,3 +1,4 @@
+require 'active_support/core_ext/hash/indifferent_access'
 require 'logger'
 require 'mongo'
 
@@ -27,6 +28,7 @@ module MongoDBQueue
     # @param logger [Logger]  Use a specific logger, otherwise logs to STDOUT
     def initialize(settings, logger=nil)
       @logger = logger || Logger.new(STDOUT)
+      settings.deep_symbolize_keys!
       check_settings(settings)
       @settings = settings
       @unique_fields = []
