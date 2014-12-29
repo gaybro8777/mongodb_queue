@@ -93,6 +93,20 @@ class MongoDBQueueTest < Test::Unit::TestCase
     assert_equal(person[:id_num], dequeued['id_num'])
 
     assert_nil(@queue.dequeue)
+    assert_not_nil @inspect_queue.find.next_document
+  end
+  
+  def test_enqueue_dequeue_delete
+    person = get_person
+    assert_not_nil @queue.enqueue(person)
+    dequeued = @queue.dequeue(MongoDBQueue::DEFAULT_QUEUE, {delete: true})
+
+    assert_equal(person[:name], dequeued['name'])
+    assert_equal(person[:age], dequeued['age'])
+    assert_equal(person[:id_num], dequeued['id_num'])
+
+    assert_nil(@queue.dequeue)
+    assert_nil @inspect_queue.find.next_document
   end
   
   def test_enqueue_dequeue_with_queue
