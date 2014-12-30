@@ -58,7 +58,7 @@ faculty_member = queue.dequeue(:faculty, {delete: true})
 queue.enqueue(person)
 faculty_member = queue.dequeue(MongoDBQueue::DEFAULT_QUEUE, {status: :processing})
 
-# Remove documents that have finished some processing
+# Remove documents that have finished processing
 queue.remove_all([:success, :error])
 
 # Requeue documents that have been in a dequeued status for 5 minutes (300 seconds)
@@ -87,14 +87,14 @@ This is a document that has been added to 2 queues - test_queue and test_queue2.
     "queue" : [
         {
             "name" : "test_queue",
-            "status" : "dequeue",
-            "queue_timestamp" : ISODate("2014-12-24T19:39:36.051Z"),
-            "dequeue_timestamp" : ISODate("2014-12-24T19:39:36.053Z")
+            "status" : "dequeued",
+            "queued_timestamp" : ISODate("2014-12-24T19:39:36.051Z"),
+            "dequeued_timestamp" : ISODate("2014-12-24T19:39:36.053Z")
         },
         {
             "name" : "test_queue2",
-            "status" : "queue",
-            "queue_timestamp" : ISODate("2014-12-24T19:39:55.052Z")
+            "status" : "queued",
+            "queued_timestamp" : ISODate("2014-12-24T19:39:55.052Z")
         }
     ]
 }
