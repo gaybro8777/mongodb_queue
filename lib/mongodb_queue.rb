@@ -62,7 +62,9 @@ module MongoDBQueue
     # @return [Hash] Queued object or nil
     def dequeue(queue_name = DEFAULT_QUEUE, opts={})
       connect_mongo
+      queue_name = queue_name.to_s
       status = opts[:status] || DEFAULT_DEQUEUE_STATUS
+      status = status.to_s
       delete = opts[:delete]
 
       query = {queue: {'$elemMatch' => {name: queue_name, status: DEFAULT_QUEUE_STATUS}}}
@@ -78,7 +80,8 @@ module MongoDBQueue
     # @param statuses [Array] Queue statuses that qualify a document for removal
     # @return [Integer] Number of documents removed
     def remove_all(statuses = [DEFAULT_DEQUEUE_STATUS])
-      statuses = [statuses].flatten
+      statuses = [statuses].flatten.map{|s|s.to_s}
+      STDERR.puts "#{statuses}"
       num_removed = 0
       potential_items = @collection.find({'queue.status' => {'$in' => statuses}}, {fields: ['queue.status']})
       potential_items.each do |item|
@@ -99,7 +102,7 @@ module MongoDBQueue
     # @param statuses [Array] Queue statuses that qualify a document for requeuing
     # @return [Integer] Number of documents requeued
     def requeue_timed_out(timeout_sec, statuses = [DEFAULT_DEQUEUE_STATUS])
-      statuses = [statuses].flatten
+      statuses = [statuses].flatten.map{|s|s.to_s}
       timeout_time = Time.now - timeout_sec
       num_requeued = 0
       potential_items = @collection.find({'queue.status' => {'$in' => statuses}}, {fields: ['queue']})
@@ -127,8 +130,8 @@ module MongoDBQueue
     # @param fields [Array] Fields to be unset
     # @return [Integer] Number of documents removed
     def unset_all(statuses, fields)
-      statuses = [statuses].flatten
-      fields = [fields].flatten
+      statuses = [statuses].flatten.map{|s|s.to_s}
+      fields = [fields].flatten.map{|f|f.to_s}
       num_modified = 0
       potential_items = @collection.find({'queue.status' => {'$in' => statuses}}, {fields: ['queue.status']})
       fields_hash = {}
@@ -194,6 +197,7 @@ module MongoDBQueue
     def send_queues(queues, data, unique_field)
       queues = [queues].flatten
       queues.reject!{|q| q.nil? || q.empty?}
+      queues.map!{|q|q.to_s}
       
       queue_list = []
       
