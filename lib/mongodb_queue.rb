@@ -86,7 +86,7 @@ module MongoDBQueue
       potential_items = @collection.find({'queue.status' => {'$in' => statuses}}, {fields: ['queue.status']})
       potential_items.each do |item|
         id = item['_id']
-        item_statuses = item['queue'].map{|s|s['status']}
+        item_statuses = item['queue'].map{|s|s['status'].to_s}
         item_statuses.uniq!
         other_statuses = item_statuses - statuses
         
@@ -140,7 +140,7 @@ module MongoDBQueue
       end
       potential_items.each do |item|
         id = item['_id']
-        item_statuses = item['queue'].map{|s|s['status']}
+        item_statuses = item['queue'].map{|s|s['status'].to_s}
         item_statuses.uniq!
         other_statuses = item_statuses - statuses
 
