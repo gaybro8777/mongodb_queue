@@ -81,7 +81,6 @@ module MongoDBQueue
     # @return [Integer] Number of documents removed
     def remove_all(statuses = [DEFAULT_DEQUEUE_STATUS])
       statuses = [statuses].flatten.map{|s|s.to_s}
-      STDERR.puts "#{statuses}"
       num_removed = 0
       potential_items = @collection.find({'queue.status' => {'$in' => statuses}}, {fields: ['queue.status']})
       potential_items.each do |item|
