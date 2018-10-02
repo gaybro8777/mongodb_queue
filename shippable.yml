@@ -11,5 +11,5 @@ services:
 
 build:
   ci:
-    - "mongo test-db --eval 'db.createUser(user: \"test-user\", pwd: \"test-pass\");'"
+    - 'mongo test-db --eval ''db.createUser(user: "test-user", pwd: "test-pass");'''
     - mongo --version
