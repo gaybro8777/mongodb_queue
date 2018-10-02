@@ -8,11 +8,8 @@ rvm:
 
 services:
   - mongodb
-  
-before_script:
-  - mongo test-db --eval 'db.addUser("test-user", "test-pass");'
-  - mongod --version
-  
-before_install:
-- sudo apt-get update --fix-missing
-- sudo apt-get -y install ca-certificates curl libcurl3 libcurl3-gnutls openssl libssl-dev libssl-doc libssl1.0.0
+
+build:
+  ci:
+    - mongo test-db --eval 'db.addUser("test-user", "test-pass");'
+    - mongo --version

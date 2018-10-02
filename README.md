@@ -1,7 +1,7 @@
 mongodb_queue
 =============
 
-[![Build Status](https://api.shippable.com/projects/5498868ed46935d5fbc0d547/badge?branchName=master)](https://app.shippable.com/projects/5498868ed46935d5fbc0d547/builds/latest) [![Gem Version](https://badge.fury.io/rb/mongodb_queue.svg)](http://badge.fury.io/rb/mongodb_queue) [![Downloads](http://ruby-gem-downloads-badge.herokuapp.com/mongodb_queue?type=total)](https://rubygems.org/gems/mongodb_queue)
+[![Build Status](https://api.shippable.com/projects/5498868ed46935d5fbc0d547/badge?branchName=master)](https://app.shippable.com/github/dashingrocket/mongodb_queue/dashboard) [![Gem Version](https://badge.fury.io/rb/mongodb_queue.svg)](http://badge.fury.io/rb/mongodb_queue) [![Downloads](http://ruby-gem-downloads-badge.herokuapp.com/mongodb_queue?type=total)](https://rubygems.org/gems/mongodb_queue)
 
 
 MongoDB based work queue written in Ruby.  Supports multiple queues.
