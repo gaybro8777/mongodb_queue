@@ -8,4 +8,4 @@ Rake::TestTask.new do |t|
 end
 
 desc 'Run tests'
-task :default => ['ci:setup:testunit', :test]
+task :default => [:test]

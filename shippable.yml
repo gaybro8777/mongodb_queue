@@ -15,14 +15,3 @@ before_script:
   - mongo test-db --eval 'db.addUser("test-user", "test-pass");'
   - mongod --version
   
-env:
-  - CI_REPORTS=shippable/testresults COVERAGE_REPORTS=shippable/codecoverage
-
-cache: true
-  
-notifications:
-  email:
-    recipients:
-      - jbowes@dashingrocket.com
-    on_success: change
-    on_failure: always
